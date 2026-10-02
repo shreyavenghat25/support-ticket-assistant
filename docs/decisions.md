@@ -63,3 +63,21 @@ Hand checks were done by me, with an AI assistant helping on German translations
 **Alternatives considered:**
 - Single-label prediction scored on exact match only: understates real usefulness, given how often two departments fit.
 - Merging overlapping departments: simpler, but changes the task the brief defines.
+
+## D5. Retrieval method
+
+**Decision:** Hybrid search (keyword BM25 + multilingual embeddings, merged with Reciprocal Rank Fusion). Replace the pure-Python BM25 library with a faster one before production.
+
+**Evidence (1,000 unseen test tickets, knowledge base of 32,206 tickets after removing 6,669 exact copies):**
+- First evaluation ("any of top 5 matches") put all three methods within 1-2 points; that metric saturated, so I rebuilt it.
+- Sharper evaluation, topic precision@5 on full tickets: Random 12.2%, Meaning 59.5%, Keyword 63.6%, **Hybrid 64.1%**.
+- Hybrid vs Meaning: +4.6 points (95% CI +3.1 to +6.1) on full tickets, +5.2 points on short 15-word messages: a real improvement.
+- Keyword vs Meaning: Keyword ahead by about 4 points (CI excludes zero), likely because this synthetic data reuses vocabulary.
+- Short messages lower every method by about 10 points equally; my prediction that keyword search would suffer more was wrong.
+- Hand test: for "internet keeps disconnecting every evening", keyword search returned unrelated tickets sharing the word "evening", while embeddings found real Wi-Fi disconnection tickets. Hybrid covers both exact-term and paraphrase cases.
+
+**Alternatives considered:**
+- Embeddings only: fastest (3 ms) and best on paraphrases, but about 5 points lower topic precision here. This was my first choice before the sharper evaluation reversed it.
+- Keyword only: strong on this data, but fails on paraphrased real-world messages.
+
+**Known limitation:** latency is 217 ms per query because rank_bm25 is pure Python; an optimised BM25 implementation should bring this to a few milliseconds.
