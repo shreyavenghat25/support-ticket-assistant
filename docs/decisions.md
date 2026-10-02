@@ -81,3 +81,27 @@ Hand checks were done by me, with an AI assistant helping on German translations
 - Keyword only: strong on this data, but fails on paraphrased real-world messages.
 
 **Known limitation:** latency is 217 ms per query because rank_bm25 is pure Python; an optimised BM25 implementation should bring this to a few milliseconds.
+
+## D6. Ticket triage: who labels what
+
+**Decision:** Route department (top 2) and priority with a kNN vote over the 5 most similar past tickets; predict type with the TF-IDF baseline; use the LLM only for sentiment, a short explanation for the agent, and (Day 4) drafting resolutions. If the LLM output is invalid, fall back to kNN.
+
+**Evidence (200 unseen test tickets, gemini-3.5-flash-lite, temperature 0):**
+| Method | Dept macro-F1 | Dept top-2 | Type macro-F1 | Priority macro-F1 |
+|---|---|---|---|---|
+| Baseline (TF-IDF + LogReg) | 0.379 | 59.0% | 0.848 | 0.557 |
+| kNN vote (5 similar tickets) | 0.474 | 77.5% | 0.821 | 0.637 |
+| LLM (ticket only) | 0.180 | 41.0% | 0.577 | 0.362 |
+| LLM + 5 similar tickets | 0.381 | 63.5% | 0.781 | 0.605 |
+
+- The LLM alone applies common sense, but the dataset has its own labelling conventions (Day 1: many labels don't fit the text), so it scores below the baseline.
+- Adding 5 retrieved tickets roughly doubles LLM department and priority scores, showing retrieval transfers the conventions.
+- The free kNN vote still wins on department and priority, at zero LLM cost.
+- LLM returned invalid JSON in 1-2 of 200 calls, handled by fallback.
+- Sentiment (no ground truth): mostly calm or concerned, 7 frustrated, 0 angry, consistent with politely written synthetic tickets.
+
+**Caveats:** small sample (200); scores are measured against imperfect labels, so some LLM "errors" may be label errors.
+
+**Alternatives considered:**
+- LLM for all labels: costlier and less accurate on this data.
+- Fine-tuning a model on the labels: possible, but kNN already works and updates as new tickets arrive, without retraining.
