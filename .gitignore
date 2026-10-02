@@ -5,3 +5,6 @@ __pycache__/
 data/*.parquet
 data/raw/
 .DS_Store
+data/index/
+data/index/
+data/index/

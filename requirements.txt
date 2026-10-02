@@ -3,3 +3,9 @@ scikit-learn
 datasets
 pyarrow
 tabulate
+sentence-transformers
+rank-bm25
+sentence-transformers
+rank-bm25
+sentence-transformers
+rank-bm25
