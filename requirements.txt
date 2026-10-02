@@ -9,3 +9,5 @@ sentence-transformers
 rank-bm25
 sentence-transformers
 rank-bm25
+google-genai
+python-dotenv
