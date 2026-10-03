@@ -105,3 +105,27 @@ Hand checks were done by me, with an AI assistant helping on German translations
 **Alternatives considered:**
 - LLM for all labels: costlier and less accurate on this data.
 - Fine-tuning a model on the labels: possible, but kNN already works and updates as new tickets arrive, without retraining.
+
+## D7. Resolution drafting
+
+**Decision:** Draft resolutions with the LLM grounded in the top 5 retrieved tickets. Every step must cite a provided source ID; code removes steps with missing or invalid citations; if no real fix exists in the sources, the status is "escalate" with clarifying questions. A human agent reviews every draft.
+
+**Evidence (50 unseen test tickets, gemini-3.5-flash-lite, temperature 0):**
+| Method | Similarity to real answer | Steps supported | Helpfulness (1-5) | Escalated |
+|---|---|---|---|---|
+| Random past answer | 0.851 | - | - | - |
+| Copy most similar answer | 0.954 | - | - | - |
+| LLM without sources | 0.904 | 59% | 3.30 | 56% |
+| LLM with sources | 0.922 | 100% | 4.65 | 66% |
+
+- Sources raise supported steps from 59% to 100% (LLM judge).
+- 0 of 39 proposed steps had invalid citations; the code check is kept as a safety net.
+- Escalation (66%) reflects the data: about half of historical answers contain no fix.
+- Copying the top answer scores highest similarity because real answers mostly request details; similarity is used only as an on-topic check, not to choose methods.
+- Cost: about 1,054 input / 152 output tokens per ticket with sources.
+
+**Caveat:** the judge is the same model and may be lenient; validated with a hand check (Day 5).
+
+**Alternatives considered:**
+- Copy the most similar answer: free, but reproduces non-answers and can't combine fixes or adapt language.
+- LLM without sources: cheaper, but 41% of steps unsupported.
