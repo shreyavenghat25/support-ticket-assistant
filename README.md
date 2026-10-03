@@ -86,6 +86,10 @@ To reproduce evaluations: `scripts/day2_eval_v2.py`, `scripts/day3_triage.py eva
 - **Latency:** BM25 uses pure-Python `rank_bm25` (~200 ms per query); an optimised implementation would remove most of it.
 - **Small evaluation samples** for LLM steps (50-200 tickets) because of free-tier API limits.
 
+## Scaling
+
+Cost per ticket, what breaks first at higher volume, and the production design: see [`docs/scaling.md`](docs/scaling.md).
+
 ## Next steps
 
 Near-duplicate removal in retrieval results, down-ranking sources with empty answers, a vector database and faster BM25 for scale, real resolution notes or KB articles to reduce escalations, and monitoring accuracy per confidence lane in production.
