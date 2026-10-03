@@ -1,0 +1,40 @@
+ticket,step_no,step,sources,human
+0,1,Software-Patches einspielen,KB-1090,n
+0,2,Systemneustarts durchführen,KB-1090,n
+1,1,"Provide information on securing medical data in hospital systems, specifically including data encryption and access controls.","KB-10450,KB-23519,KB-13354,KB-13136,KB-30312",y
+1,2,Offer to send a detailed guide or arrange a convenient time for a call to discuss their specific requirements and network security measures further.,"KB-10450,KB-23519,KB-13354,KB-30312",y
+10,1,Review and enhance security protocols for medical data systems.,"KB-16121,KB-15167",y
+10,2,Implement the required security updates at the earliest opportunity to protect sensitive data.,KB-2350,y
+10,3,Implement enhanced security measures such as robust firewalls and data encryption.,KB-20159,y
+11,1,Implement role-based access control to help protect sensitive patient information.,"KB-4227,KB-6273",y
+11,2,Encrypt sensitive data within your Ansible workflows.,"KB-4227,KB-6273",y
+11,3,Regularly update your Ansible playbooks to maintain system security.,"KB-4227,KB-6273",y
+14,1,Investigate the billing error and correct the duplicate SaaS subscription fees.,"KB-9915,KB-8048,KB-14209",y
+14,2,Request the customer's account number and the date of the incorrect charge to assist in processing any necessary refund.,"KB-9915,KB-14209",y
+15,1,Setzen Sie die Nutzernamen und Passwörter der betroffenen Mitarbeiterkonten zurück.,"KB-14600,KB-13464",n
+15,2,"Aktualisieren Sie die Firewalleinstellungen, um die Sicherheit des Netzwerks zu verbessern.","KB-14600,KB-13464",n
+22,1,Visit the Zoho Books website for tutorials and guides on integrating analytics tools.,KB-31688,y
+22,2,Schedule a call to discuss your specific requirements and receive personalized guidance.,KB-31688,y
+24,1,Acknowledge the request to enhance security protocols for medical data systems and assure the customer that the matter is being prioritized.,"KB-10950,KB-12664,KB-24941",y
+24,2,Initiate a review of the current security measures to protect sensitive patient information and prevent potential data breaches.,"KB-22267,KB-3217,KB-10950,KB-12664,KB-24941",y
+24,3,"Consider implementing additional protocols such as encryption, firewalls, and access controls.",KB-3217,y
+27,1,"Offer data security solutions including advanced encryption, access controls, and firewalls.","KB-7399,KB-25237",y
+29,1,Optimize database queries.,"KB-14388,KB-14902,KB-21703",n
+29,2,Reduce server load.,"KB-14388,KB-14902,KB-21703",n
+30,1,Review the billing discrepancies for your SaaS subscriptions.,"KB-18593,KB-10123",y
+30,2,Contact us at <tel_num> to discuss and resolve the issue affecting <acc_num>.,"KB-18593,KB-10123",y
+32,1,"Connect your QuickBooks Online account to apps and services that allow you to track expenses, create budgets, and analyze financial data.","KB-17087,KB-22012",y
+32,2,"Check the QuickBooks Online tutorials and resources available on their website, which include webinars and video guides to help you get started.","KB-17087,KB-22012",y
+34,1,Sensible Daten mit industriestandardmäßigen Verschlüsselungsmethoden verschlüsseln.,"KB-17206,KB-18982,KB-9938,KB-16327,KB-9173",y
+34,2,"Zugriffskontrollen und sichere Authentifizierungen implementieren, um unerlaubten Zugriffen vorzubeugen.","KB-17206,KB-18982,KB-9938,KB-16327,KB-9173",y
+34,3,Potenzielle Sicherheitsrisiken mit Threat-Detektionswerkzeugen überwachen.,KB-17206,y
+34,4,"Regelmäßige Sicherheitsaudits und Updates durchführen, um Schwachstellen zu identifizieren und Datenverletzungen zu verhindern.","KB-17206,KB-18982,KB-9938,KB-16327,KB-9173",y
+35,1,Offer customized digital branding solutions designed to boost online presence and engagement.,"KB-5504,KB-2584,KB-7232",y
+35,2,"Ask the customer for a convenient time for a call to discuss the services, share relevant case studies, and explore how to tailor them to the agency's needs.","KB-5504,KB-2584,KB-7232",y
+38,1,"Review and enhance security protocols for medical data systems, including implementing multi-layered encryption, access controls, and regular security audits.","KB-11253,KB-16121,KB-6977",y
+38,2,Deploy firewalls and train hospital personnel in data protection best practices.,KB-6977,u
+42,1,"Verwenden Sie die Dokumentation unter <link> für Schritt-für-Schritt-Anweisungen zur Einrichtung der Integration, Konfiguration des Elasticsearch-Clusters sowie zum Abfragen der Daten.",KB-3907,y
+42,2,"Implementieren Sie robuste Zugriffskontrollen, die Verschlüsselung sensibler Daten sowie regelmäßige Sicherheitsüberprüfungen.","KB-23689,KB-1194,KB-6558",y
+42,3,"Stellen Sie sicher, dass alle Software und Geräte mit den neuesten Sicherheitspatches aktualisiert sind.",KB-1194,y
+49,1,Inform the customer that we accept payments via credit cards and PayPal for Hub subscription plans.,KB-30888,y
+49,2,Let the customer know that long-term subscriptions come with discounts and that promotions are available.,KB-30888,y

@@ -149,3 +149,18 @@ Priority is auto-set only when all 5 agree; otherwise it is suggested for confir
 **Alternatives considered:**
 - Route everything automatically: 60% accuracy, too many misroutes.
 - Use the LLM's self-reported confidence: not calibrated (confidences did not sum to 1 in testing) and costs tokens.
+
+## D9. Validating the LLM judge
+
+**Decision:** Don't trust LLM-as-judge groundedness scores without human validation. Report the human-checked figure (84%), not the judge's (100%).
+
+**Evidence (blind hand check of all 39 drafted steps from Day 4, judge hidden during labelling):**
+- Human: 32 supported, 6 not supported, 1 unsure, so 84% supported (excluding unsure). LLM judge: 100%.
+- Per ticket, human and judge agreed on 13 of 17 drafts.
+- All 6 unsupported steps share one failure mode: recommending actions the customer or source ticket had already tried without success (restarts, patches, password resets, firewall updates, query optimisation, reducing server load). The judge missed these because the words appear in the sources.
+- In 3 of 17 drafts (18%), every step was this kind of advice; these should have been escalations.
+- Other observations: supported steps can still be unhelpful (e.g. "review the billing discrepancies"); one step mixed supported and unsupported actions; dataset placeholders (<tel_num>, <link>) were copied into drafts; near-duplicate sources occupied several retrieval slots.
+
+**Caveats:** one reviewer, 39 steps.
+
+**Next fix:** add rules to the drafting prompt ("never recommend actions marked as already tried") and to the judge ("check whether the source recommends the action or only reports it as tried"), then re-measure.
