@@ -8,3 +8,7 @@ data/raw/
 data/index/
 data/index/
 data/index/
+logs/
+data/
+.claude/
+.agents/

@@ -15,7 +15,7 @@ from day3_triage import LLM  # noqa: E402
 from day4_resolve import (JUDGE_RULES, K, RESOLVE_RULES, SEED, cached_call, load_cache,  # noqa: E402
                           show, sources_block, validate)
 
-N = int(sys.argv[1]) if len(sys.argv) > 1 else 50
+N = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 50
 
 NEW_RULES = RESOLVE_RULES + """
 - Never recommend an action that the new ticket or a past ticket says was ALREADY TRIED (for example

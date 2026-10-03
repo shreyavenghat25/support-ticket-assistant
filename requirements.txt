@@ -11,3 +11,7 @@ sentence-transformers
 rank-bm25
 google-genai
 python-dotenv
+fastapi
+uvicorn
+streamlit
+requests
