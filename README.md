@@ -42,6 +42,7 @@ flowchart TD
 - **Retrieval:** multilingual `e5-small` embeddings (English + German in one index) fused with BM25 via reciprocal rank fusion. Knowledge base: 32,206 past tickets after removing exact copies.
 - **Routing:** majority vote of the 5 retrieved tickets; the agreement count sets the confidence lane. Priority is auto-set only when all 5 agree.
 - **Drafting:** Gemini (`gemini-3.5-flash-lite`, temperature 0, JSON output). Rules: use only the sources, cite them, don't recommend already-tried actions, escalate when no fix exists, reply in the customer's language.
+- **New issues:** tickets unlike anything in the library get a "possible new issue" warning and manual routing; resolved tickets can be added to the library through an admin-protected API endpoint (decision D12).
 - **Safety:** code-level citation validation, fallback to routing and similar tickets if the LLM fails, human review of every draft, daily request limit, ticket text not logged.
 
 ## Repository map
