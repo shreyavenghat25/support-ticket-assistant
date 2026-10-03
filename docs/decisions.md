@@ -129,3 +129,23 @@ Hand checks were done by me, with an AI assistant helping on German translations
 **Alternatives considered:**
 - Copy the most similar answer: free, but reproduces non-answers and can't combine fixes or adapt language.
 - LLM without sources: cheaper, but 41% of steps unsupported.
+
+## D8. Smart escalation (confidence-based routing)
+
+**Decision:** Use agreement among the 5 retrieved tickets as a confidence signal, with three lanes:
+- Auto-route when 4+ of 5 agree on the department.
+- Suggest the top 2 (agent confirms with one click) when 3 of 5 agree.
+- Manual routing when 2 or fewer agree.
+Priority is auto-set only when all 5 agree; otherwise it is suggested for confirmation.
+
+**Evidence (1,000 unseen test tickets, no LLM calls):**
+- Department accuracy by agreement: 5/5 = 90%, 4/5 = 75%, 3/5 = 57%, 2/5 = 50%; agreement predicts correctness.
+- Auto-route at 4+ agreement: 24% of tickets, 81% accuracy (91% top-2). At 5/5 only: 9% at 90%. Routing everything: 60%.
+- Suggest lane (3 of 5): 34% of tickets, 84% top-2 accuracy.
+- Priority is not monotonic (2/5 = 65% vs 3/5 = 54%); only 5/5 (85%) is reliable.
+
+**Caveat:** accuracy is measured against imperfect labels (Day 1: in 14 of 30 baseline errors the label did not fit the text), so true accuracy is likely higher.
+
+**Alternatives considered:**
+- Route everything automatically: 60% accuracy, too many misroutes.
+- Use the LLM's self-reported confidence: not calibrated (confidences did not sum to 1 in testing) and costs tokens.
