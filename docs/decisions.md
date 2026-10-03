@@ -5,7 +5,7 @@ Hand checks were done by me, with an AI assistant helping on German translations
 
 ## D1. Dataset
 
-**Decision:** Use Tobi-Bueck/customer-support-tickets (English + German). Supplement it later with a small set of telecom knowledge-base articles that I write myself.
+**Decision:** Use Tobi-Bueck/customer-support-tickets (English + German). Knowledge-base articles were planned but not added; the system retrieves from past tickets only (see README limitations).
 
 **Evidence:**
 - 61,765 tickets; 13,191 had no body or agent answer, leaving **48,574 usable tickets** (58% English, 42% German).
