@@ -21,7 +21,9 @@ LANES = {"auto": ("🟢 Auto-routed", "The 5 most similar past tickets strongly 
          "manual": ("🔴 Manual routing", "The similar tickets disagree. Please decide.")}
 EXAMPLES = ["", "My broadband drops every evening around 8, I work from home and this is costing me money.",
             "I was charged twice for my monthly subscription. Please refund the extra charge.",
-            "Ich wurde zweimal für mein Abonnement belastet. Bitte erstatten Sie den Betrag."]
+            "Ich wurde zweimal für mein Abonnement belastet. Bitte erstatten Sie den Betrag.",
+            "I want to return the headphones I bought last week, they stopped charging after two days.",
+            "My smart fridge keeps ordering 40 litres of milk every night through the Alexa integration."]
 
 
 @st.cache_resource(show_spinner="Loading the search index and models (first time takes about a minute)...")
@@ -60,7 +62,7 @@ def analyse(text):
     log("requests.jsonl", {"request_id": res["request_id"], "ts": datetime.now(timezone.utc).isoformat(),
                            "chars": len(text), "lane": res["routing"]["lane"], "reply_status": res["reply"]["status"],
                            "total_ms": d["total_ms"], "tokens_in": d["tokens_in"], "tokens_out": d["tokens_out"],
-                           "llm_ok": d["llm_ok"]})
+                           "llm_ok": d["llm_ok"], "new_issue": res["novelty"]["new_issue_suspected"]})
     return res
 
 
@@ -100,6 +102,10 @@ if res:
     left, right = st.columns(2)
     with left:
         st.subheader("Routing")
+        nov = res.get("novelty") or {}
+        if nov.get("new_issue_suspected"):
+            st.warning("⚠️ Possible new issue: this ticket doesn't closely match any past ticket. "
+                       "Routing is set to manual; please flag it for review.")
         title, why = LANES[rt["lane"]]
         st.markdown(f"**{title}** ({rt['agreement']} similar tickets agree)  \n{why}")
         for d in rt["departments"]:
