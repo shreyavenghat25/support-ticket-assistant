@@ -164,3 +164,17 @@ Priority is auto-set only when all 5 agree; otherwise it is suggested for confir
 **Caveats:** one reviewer, 39 steps.
 
 **Next fix:** add rules to the drafting prompt ("never recommend actions marked as already tried") and to the judge ("check whether the source recommends the action or only reports it as tried"), then re-measure.
+
+## D10. Fix: never recommend already-tried actions
+
+**Decision:** Add a drafting rule: don't recommend actions the new ticket or a source says were already tried; escalate if only those remain. Add the same check to the judge.
+
+**Evidence (same 50 tickets and sources as Day 4):**
+- All 3 drafts I had marked fully unsupported now escalate, with follow-up questions that acknowledge what was already tried.
+- 10 of 13 drafts I had marked fully supported still draft; 3 became escalations (tickets 14, 24, 30), a coverage cost.
+- Overall: drafted fixes fell from 17 to 12 of 50 (escalation 66% to 76%); improved-judge support rose from 85% to 100%.
+- Judge calibration: on the old drafts the improved judge gives 85% versus my hand check of 84% (original judge: 100%).
+
+**Remaining limitation:** steps that mix a supported and an unsupported action (ticket 38) are not addressed by this rule.
+
+**Trade-off:** fewer drafts, more trustworthy ones; wrong advice costs more than an escalation in support work.
