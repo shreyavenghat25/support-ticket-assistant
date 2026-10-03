@@ -178,3 +178,18 @@ Priority is auto-set only when all 5 agree; otherwise it is suggested for confir
 **Remaining limitation:** steps that mix a supported and an unsupported action (ticket 38) are not addressed by this rule.
 
 **Trade-off:** fewer drafts, more trustworthy ones; wrong advice costs more than an escalation in support work.
+
+## D11. Deployment
+
+**Decision:** Live demo on Streamlit Community Cloud, with the Streamlit app calling the `Assistant` class in-process. The FastAPI service and Dockerfile remain the production design (separate backend and frontend in one container, deployable to any container platform).
+
+**Why:**
+- Hugging Face Docker Spaces now require a paid plan on the free CPU tier (HTTP 402 at creation).
+- Streamlit Community Cloud is free and has enough memory for the embedding model and index; CPU-only PyTorch keeps memory down.
+- The same `Assistant` code runs behind both the API and the standalone app, so behaviour is identical.
+
+**Operational notes:**
+- The Gemini key is stored in platform secrets, never in the repository.
+- The model connection is cached in memory, so changing a secret requires an app reboot.
+- A daily request limit protects the free LLM quota on a public demo; the ticket text itself is not logged.
+- Free-tier apps sleep after inactivity; the first request after waking takes about a minute.
