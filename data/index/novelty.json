@@ -1,0 +1,6 @@
+{
+  "k": 5,
+  "false_alarm_budget": 0.05,
+  "threshold": 0.09987121820449829,
+  "note": "novelty = 1 - mean cosine similarity of the k closest library tickets"
+}

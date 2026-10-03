@@ -193,3 +193,20 @@ Priority is auto-set only when all 5 agree; otherwise it is suggested for confir
 - The model connection is cached in memory, so changing a secret requires an app reboot.
 - A daily request limit protects the free LLM quota on a public demo; the ticket text itself is not logged.
 - Free-tier apps sleep after inactivity; the first request after waking takes about a minute.
+
+## D12. Evolving data and new issue types
+
+**Decision:** Flag tickets whose 5 closest library matches are unusually dissimilar (novelty threshold set for about a 5% false-alarm rate), group flagged tickets by meaning, and surface groups with their top keywords as an emerging-issue alert for humans. Newly resolved tickets are added to the library, so known issues stop being flagged without retraining.
+
+**Evidence (simulation: one whole department removed from the library, its tickets streamed in among normal traffic):**
+| New issue | Flagged | False alarms | AUC | Flagged after adding 75 resolved |
+|---|---|---|---|---|
+| Billing and Payments | 35% | 6% | 0.74 | 11% |
+| Service Outages and Maintenance | 15% | 4% | 0.70 | 5% |
+| Returns and Exchanges | 12% | 4% | 0.56 | 8% |
+
+- For billing, two groups of flagged tickets were 92% and 85% from the new issue, with keywords "billing, charges, account, payment": a clear alert without ever having seen a billing ticket.
+- Outages and Returns were weak because those department labels don't correspond to distinct topics (Day 1 finding); their flagged groups had unrelated keywords.
+- Adding resolved examples reduced flags in every scenario, so the library adapts to new data.
+
+**Caveat:** holding out a department label is a pessimistic proxy for a new topic; genuinely new issues usually bring new vocabulary (product names, error codes), as billing does here.
