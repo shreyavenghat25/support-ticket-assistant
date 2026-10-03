@@ -1,0 +1,11 @@
+pandas
+numpy
+pyarrow
+rank-bm25
+sentence-transformers
+google-genai
+python-dotenv
+fastapi
+uvicorn
+streamlit
+requests

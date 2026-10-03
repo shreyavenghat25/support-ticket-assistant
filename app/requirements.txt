@@ -1,0 +1,12 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+pandas
+numpy
+pyarrow
+rank-bm25
+sentence-transformers
+google-genai
+python-dotenv
+fastapi
+requests
+streamlit
