@@ -27,6 +27,7 @@ Use Case 2 of the assignment. Every design decision, with evidence and alternati
 | Does grounding reduce made-up advice? | On 50 tickets, steps supported by sources: **59% without sources vs 100% with sources** (LLM judge); helpfulness 3.3 → 4.65 of 5. 0 of 39 steps cited a ticket that wasn't provided. |
 | Can we trust the LLM judge? | No, not without checking. My blind hand check of all 39 steps found **84%**, not 100%. Every failure was the model **recommending actions the customer had already tried**. |
 | Did the fix work? | A prompt rule fixed **3 of 3** bad drafts (they now escalate), at the cost of 3 of 13 good drafts also escalating. The improved judge now scores old drafts at **85%, matching my 84%**. |
+| Can it spot new kinds of problems? | In a simulation with billing removed from the library, flagged tickets formed groups that were **92% billing**; adding 75 resolved examples cut flags from 35% to 11% (D12). |
 
 ## How it works
 
@@ -50,7 +51,7 @@ flowchart TD
 - **Routing:** majority vote of the 5 retrieved tickets; the agreement count sets the confidence lane. Priority is auto-set only when all 5 agree.
 - **Drafting:** Gemini (`gemini-3.5-flash-lite`, temperature 0, JSON output). Rules: use only the sources, cite them, don't recommend already-tried actions, escalate when no fix exists, reply in the customer's language.
 - **New issues:** tickets unlike anything in the library get a "possible new issue" warning and manual routing; resolved tickets can be added to the library through an admin-protected API endpoint (decision D12).
-- **Safety:** code-level citation validation, fallback to routing and similar tickets if the LLM fails, human review of every draft, daily request limit, ticket text not logged.
+- **Safety:** code-level citation validation, fallback to routing and similar tickets if the LLM fails, human review of every draft, daily request limit, ticket text not logged. Core safety rules are covered by 11 automated tests in CI.
 
 ## Repository map
 
@@ -61,9 +62,11 @@ flowchart TD
 | `app/streamlit_app.py` | Agent screen (calls the API, or runs standalone in the cloud) |
 | `scripts/` | Day-by-day analysis and evaluation scripts |
 | `reports/` | Evaluation outputs and hand-check results |
-| `docs/decisions.md` | Design decisions D1-D11 with evidence |
+| `docs/decisions.md` | Design decisions D1-D12 with evidence |
 | `Dockerfile`, `start.sh` | Container running backend and frontend together |
 | `data/index/` | Prebuilt search index, so the app runs without rebuilding |
+| `tests/`, `.github/workflows/` | 11 safety tests, run automatically on every push |
+| `docs/scaling.md`, `docs/prompts.txt` | Cost and scaling plan; AI collaboration log |
 
 ## Run it locally
 
@@ -99,7 +102,7 @@ Cost per ticket, what breaks first at higher volume, and the production design: 
 
 ## Next steps
 
-Near-duplicate removal in retrieval results, down-ranking sources with empty answers, a vector database and faster BM25 for scale, real resolution notes or KB articles to reduce escalations, and monitoring accuracy per confidence lane in production.
+An LLM-based answer labeller to rank sources by usefulness (D3), near-duplicate removal in retrieval results, down-ranking sources with empty answers, a vector database and faster BM25 for scale, real resolution notes or KB articles to reduce escalations, and monitoring accuracy per confidence lane in production.
 
 ## Data and tools
 

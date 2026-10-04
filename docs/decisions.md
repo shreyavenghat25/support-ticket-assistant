@@ -39,7 +39,7 @@ Hand checks were done by me, with an AI assistant helping on German translations
 
 ## D3. Agent answers that don't resolve anything
 
-**Decision:** Prefer past tickets whose answers contain real help when drafting resolutions. Replace the word-pattern answer labeller with an LLM-based labeller, validated against my 30 hand-labelled answers.
+**Decision:** Don't treat every past answer as a fix: the drafting prompt tells the model to ignore answers that only ask the customer for details. An LLM-based answer labeller, validated against my 30 hand-labelled answers, was planned but not built; it is listed as a next step.
 
 **Evidence:**
 - A word-pattern labeller marked 51.7% of answers as info-request-only, 39.6% as other and 8.7% as resolution.
@@ -84,7 +84,7 @@ Hand checks were done by me, with an AI assistant helping on German translations
 
 ## D6. Ticket triage: who labels what
 
-**Decision:** Route department (top 2) and priority with a kNN vote over the 5 most similar past tickets; predict type with the TF-IDF baseline; use the LLM only for sentiment, a short explanation for the agent, and (Day 4) drafting resolutions. If the LLM output is invalid, fall back to kNN.
+**Decision:** Route department (top 2), priority and type with a kNN vote over the 5 most similar past tickets; use the LLM only for sentiment and (Day 4) drafting resolutions. Routing never depends on the LLM, so it still works if the LLM fails. The TF-IDF baseline is slightly better on type (0.848 vs 0.821), but I kept kNN for one consistent, model-free routing path.
 
 **Evidence (200 unseen test tickets, gemini-3.5-flash-lite, temperature 0):**
 | Method | Dept macro-F1 | Dept top-2 | Type macro-F1 | Priority macro-F1 |
