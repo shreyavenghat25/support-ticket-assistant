@@ -1,0 +1,145 @@
+AI COLLABORATION LOG - Support Ticket Resolution Assistant
+==========================================================
+
+How I worked with an AI assistant (Claude) on this project, as the brief allowed.
+Questions are paraphrased from my real conversations, cleaned up for readability.
+The AI wrote most of the code and proposed options; I chose the direction, ran every
+step, did the hand checks, judged results, and own the decisions in docs/decisions.md.
+
+
+======================================================================
+0. CHOOSING THE USE CASE
+======================================================================
+The brief offered three use cases (choose one):
+
+  1. Fashion recommendation - multilingual product search and outfit suggestions over an
+     evolving catalog (Amazon reviews data).
+  2. Support ticket resolution - classify tickets, retrieve similar past tickets and
+     knowledge, draft grounded resolutions, handle evolving data and ticket classes.
+  3. Call-centre analytics - summaries, sentiment over time, churn risk, live follow-ups,
+     QA scoring and rollups over call transcripts.
+
+My question:
+  "Which use case lets me demonstrate the most to the reviewers, given the rubric weights
+   design decisions, production thinking and evaluation so heavily?"
+
+Why I chose Use Case 2:
+  - It is measurable. Past tickets come with real agent answers and labels, so I can
+    evaluate retrieval, routing and drafting with numbers, not just a demo.
+    Use Case 1 has no ground truth for "good outfit"; Use Case 3 has no labels for
+    sentiment, churn or QA scores, so its evaluation would rely on an LLM grading itself.
+  - It is realistic in one week: fewer moving parts than Use Case 3.
+  - It is less crowded: Use Case 1 is the most intuitive to demo, so I expected many
+    candidates to pick it.
+
+
+======================================================================
+1. UNDERSTANDING THE DATA (Day 1)
+======================================================================
+Questions I asked:
+  - "What does each column in the knowledge-base and test files mean, and how is each used?"
+  - "Why split the data into training and test sets in a RAG project at all?"
+  - "Here is my understanding of Day 1 - is it right?"  (I wrote my own summary to check it)
+
+What I did myself:
+  - Hand-checked 30 baseline routing errors: in 14 the dataset label didn't fit the text.
+  - Hand-checked 30 answer labels: the word-pattern labeller was right only 60% of the time.
+
+Assumptions that turned out wrong (caught by measuring):
+  - A time-based split was planned; the dataset has no timestamps, so we used a
+    group-aware split that keeps duplicates on one side.
+  - Labels were assumed "noisy"; duplicate checks showed they are consistent, and the hand
+    check showed they are consistent but often don't fit the ticket text.
+
+
+======================================================================
+2. SEARCH (Day 2)
+======================================================================
+Questions I asked:
+  - "Explain what Day 2 is doing with examples, the way I'd explain it in an interview."
+  - After all three methods looked tied: I chose to sharpen the evaluation rather than
+    accept the result.
+
+Outcome: precision@5, MRR, random baseline, short-query test and bootstrap confidence
+intervals showed hybrid search was genuinely better, reversing my first decision.
+
+
+======================================================================
+3. ROUTING (Day 3)
+======================================================================
+Questions I asked:
+  - "Does my Claude subscription cover API calls?" / "Why are tokens needed?"
+    -> chose the free Gemini tier for development.
+
+Outcome: a free kNN vote over the retrieved tickets beat the LLM for routing
+(77.5% vs 63.5% top-2), so the LLM is used only where it adds something unique.
+
+
+======================================================================
+4. DRAFTING (Day 4)
+======================================================================
+Questions I asked:
+  - "Everyone builds what the brief asks. What would make my submission genuinely
+     different?"
+  - "Explain Day 4 with a diagram so I can remember and explain it."
+
+What I checked myself: read the five sources behind an escalation to confirm none
+contained a real fix before trusting the behaviour.
+
+
+======================================================================
+5. INNOVATIONS: OPTIONS PROPOSED, MY CHOICES
+======================================================================
+When I asked how to stand out, the AI proposed several directions. My decisions:
+
+  CHOSE  Confidence-based escalation ("know when you don't know")
+         Why: cheap, uses data I already had, and gives a business number.
+         Result: 24% of tickets auto-routed at 81% accuracy; agreement predicts accuracy
+         (90% when all 5 agree vs ~50% when split).
+
+  CHOSE  Checking the LLM judge by hand, then fixing what it missed
+         Why: a judge grading its own model can't be trusted blindly.
+         Result: my blind check found 84%, not 100%; all failures recommended
+         already-tried actions; one prompt rule fixed 3 of 3 bad drafts, and the improved
+         judge (85%) now matches my check.
+
+  CHOSE  New-issue detection
+         Why: I asked whether every requirement in the brief was covered; "evolving data
+         and ticket classes" was not.
+         Result: unfamiliar tickets are flagged and routed manually; in simulation, flagged
+         billing tickets formed clusters that were 92% billing; adding 75 resolved
+         examples cut flags from 35% to 11%.
+
+  SKIPPED Fine-tuning a model, extra LLMs, a fancier UI
+         Why: more risk and more to explain, without new insight.
+
+  CHOSE  A scaling doc (cost, what breaks first, monitoring) instead of more features,
+         because production thinking is 25% of the rubric.
+
+
+======================================================================
+6. DEPLOYMENT (Day 6)
+======================================================================
+Questions I asked:
+  - "Where does the backend live, and where is it hosted?"
+  - "What are the trade-offs of Hugging Face for hosting?"
+  - "Should I make the repo public now?"  (kept private until submission)
+
+What happened:
+  - Hugging Face Docker Spaces now require a paid plan, so I switched to Streamlit
+    Community Cloud and kept FastAPI + Docker as the production design.
+  - Debugged a wrong secret and cached code needing a reboot; rotated exposed tokens.
+  - Found that an updated file had never been saved by checking its contents directly.
+  - Bugs found while running AI-written code: a script reading command-line arguments at
+    import time, and an interactive script that couldn't read keyboard input.
+
+
+======================================================================
+7. WHAT I LEARNED ABOUT WORKING WITH AI
+======================================================================
+- AI writes code fast, but its claims and self-grading must be verified: my hand check
+  moved a headline number from 100% to 84%.
+- Several AI predictions were wrong (time split, label noise, short-query result);
+  measuring instead of assuming caught each one.
+- The most useful questions were always "how do we know this works?" and
+  "what is this actually doing?"
