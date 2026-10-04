@@ -1,5 +1,8 @@
 # Support Ticket Resolution Assistant
 
+![tests](https://github.com/shreyavenghat25/support-ticket-assistant/actions/workflows/tests.yml/badge.svg)
+
+
 An assistant for support agents: for each new ticket it **finds similar past tickets**, **suggests routing with a confidence level**, and **drafts a reply grounded in past resolutions with citations**, escalating instead of guessing when no proven fix exists. A human agent reviews everything before it reaches the customer.
 
 **Live demo:** https://support-ticket-assistant-ddpuqm9pyfbqxuzrefbbxt.streamlit.app
