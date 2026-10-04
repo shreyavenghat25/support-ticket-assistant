@@ -5,6 +5,10 @@ An assistant for support agents: for each new ticket it **finds similar past tic
 **Live demo:** https://support-ticket-assistant-ddpuqm9pyfbqxuzrefbbxt.streamlit.app
 (Free hosting sleeps when unused; the first request after waking takes about a minute.)
 
+| Familiar ticket (German): auto-routed, cited reply | Unfamiliar ticket: possible new issue |
+|---|---|
+| ![Familiar ticket](docs/images/familiar_ticket.png) | ![New issue](docs/images/new_issue.png) |
+
 Use Case 2 of the assignment. Every design decision, with evidence and alternatives, is in [`docs/decisions.md`](docs/decisions.md). All evaluation outputs are in [`reports/`](reports/).
 
 ---
