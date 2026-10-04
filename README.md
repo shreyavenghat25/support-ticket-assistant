@@ -58,7 +58,7 @@ flowchart TD
 | Path | What |
 |---|---|
 | `services/assistant.py` | The core pipeline used by both the API and the app |
-| `services/api.py` | FastAPI backend: `/analyse`, `/feedback`, `/metrics`, `/health` |
+| `services/api.py` | FastAPI backend: `/analyse`, `/feedback`, `/metrics`, `/health`, `/tickets` (admin-only) |
 | `app/streamlit_app.py` | Agent screen (calls the API, or runs standalone in the cloud) |
 | `scripts/` | Day-by-day analysis and evaluation scripts |
 | `reports/` | Evaluation outputs and hand-check results |
