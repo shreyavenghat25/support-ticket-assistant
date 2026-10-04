@@ -67,11 +67,11 @@ echo 'GEMINI_API_KEY=your-key' > .env
 echo 'GEMINI_MODEL=gemini-3.5-flash-lite' >> .env
 
 # Option 1: standalone app
-streamlit run app/streamlit_app.py
+python -m streamlit run app/streamlit_app.py
 
 # Option 2: API + app
 python -m uvicorn services.api:app --port 8000          # terminal 1
-API_URL=http://localhost:8000 streamlit run app/streamlit_app.py   # terminal 2
+API_URL=http://localhost:8000 python -m streamlit run app/streamlit_app.py   # terminal 2
 ```
 
 To rebuild the data split and index from scratch: `python scripts/day1_eda.py`, then `python scripts/day2_search.py build`.
