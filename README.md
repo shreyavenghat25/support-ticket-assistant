@@ -14,9 +14,13 @@ An assistant for support agents: for each new ticket it **finds similar past tic
 - Every drafted step **cites a past ticket**; with no proven fix it writes a customer reply that asks for details instead of guessing.
 - I **checked the LLM judge by hand**: it said 100%, my blind check found 84%; one prompt fix brought the judge in line with me.
 
-| Familiar ticket (German): auto-routed, cited reply | Unfamiliar ticket: possible new issue |
+| Familiar ticket (German): auto-routed, reply in German | Unfamiliar ticket: possible new issue |
 |---|---|
 | ![Familiar ticket](docs/images/familiar_ticket.png) | ![New issue](docs/images/new_issue.png) |
+
+**Cited draft (headphones return):** each step shows the past ticket it comes from.
+
+![Cited draft](docs/images/cited_draft.png)
 
 Use Case 2 of the assignment. Every design decision, with evidence and alternatives, is in [`docs/decisions.md`](docs/decisions.md). All evaluation outputs are in [`reports/`](reports/).
 
