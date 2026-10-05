@@ -12,6 +12,9 @@ from pathlib import Path
 import requests
 import streamlit as st
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import ui  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 API = os.getenv("API_URL")  # unset = embedded mode (no separate backend needed)
 DAILY_LIMIT = int(os.getenv("DAILY_LIMIT", "200"))
@@ -75,11 +78,11 @@ def send_feedback(request_id, helpful):
 
 
 st.set_page_config(page_title="Support Ticket Assistant", page_icon="🎫", layout="wide")
-st.title("Support Ticket Assistant")
-st.caption("Finds similar past tickets, suggests routing, and drafts a reply grounded in past resolutions. "
-           "A human agent reviews everything before it reaches the customer.")
-st.info("If the app was asleep, the first analysis takes about a minute while the models load. "
-        "After that, most tickets take a few seconds; when the free AI service is busy, a draft can take up to about 15 seconds.", icon="⏱️")
+st.markdown(ui.CSS, unsafe_allow_html=True)
+st.markdown(ui.hero(), unsafe_allow_html=True)
+st.markdown(ui.note("If the app was asleep, the first analysis takes about a minute while the models load. After that, "
+                    "most tickets take a few seconds; when the free AI service is busy, a draft can take up to about "
+                    "15 seconds."), unsafe_allow_html=True)
 
 example = st.selectbox("Try an example (optional)", EXAMPLES, format_func=lambda x: x[:90] or "Choose...")
 text = st.text_area("Customer ticket", value=example, height=140)
@@ -101,55 +104,45 @@ if st.button("Analyse", type="primary"):
 res = st.session_state.get("result")
 if res:
     rt, reply = res["routing"], res["reply"]
-    left, right = st.columns(2)
+    nov = res.get("novelty") or {}
+    new_issue = bool(nov.get("new_issue_suspected"))
+    left, right = st.columns(2, gap="large")
     with left:
-        st.subheader("Routing")
-        nov = res.get("novelty") or {}
-        if nov.get("new_issue_suspected"):
-            st.warning("⚠️ Possible new issue: this ticket doesn't closely match any past ticket. "
-                       "Routing is set to manual; please flag it for review.")
-        title, why = LANES[rt["lane"]]
-        if nov.get("new_issue_suspected"):
-            why = ("Set to manual because the ticket looks unlike past tickets, so their vote may not apply. "
-                   "Use the suggestion below as a hint only.")
-        st.markdown(f"**{title}** ({rt['agreement']} similar tickets agree)  \n{why}")
-        for d in rt["departments"]:
-            st.write(f"- {d['name']} ({d['votes']} of 5 votes)")
-        st.write(f"**Priority:** {rt['priority']}" + ("" if rt["priority_confirmed"] else " (please confirm)"))
-        st.write(f"**Type:** {rt['type']}   **Customer mood:** {res.get('sentiment') or 'unknown'}")
+        st.markdown(ui.label("Routing"), unsafe_allow_html=True)
+        if new_issue:
+            st.markdown(ui.callout("alert", "Possible new issue: this ticket doesn't closely match any past ticket. "
+                                            "Routing is set to manual; please flag it for review."),
+                        unsafe_allow_html=True)
+        st.markdown(ui.routing_card(rt, res.get("sentiment"), new_issue), unsafe_allow_html=True)
     with right:
-        st.subheader("Suggested reply")
+        st.markdown(ui.label("Suggested reply"), unsafe_allow_html=True)
         status = reply["status"]
         if status == "draft":
-            st.success("Past tickets contain a proven fix. Review the reply, then send.")
+            msg = ("ok", "Past tickets contain a proven fix. Review the reply, then send.")
         elif status == "escalate":
-            st.info("No proven fix in past tickets, so the reply asks for details and the ticket goes to a "
-                    "specialist. This is deliberate: the assistant doesn't guess.")
+            msg = ("info", "No proven fix in past tickets, so the reply asks for details and the ticket goes to a "
+                           "specialist. This is deliberate: the assistant doesn't guess.")
         else:
-            st.warning("The AI draft is paused right now (busy or over the demo quota). "
-                       "Routing and similar tickets below still work.")
+            msg = ("warn", "The AI draft is paused right now (busy or over the demo quota). "
+                           "Routing and similar tickets below still work.")
+        st.markdown(ui.callout(*msg), unsafe_allow_html=True)
         if reply.get("customer_reply"):
-            st.text_area("Reply to the customer (edit before sending)", reply["customer_reply"], height=180,
+            st.text_area("Reply to the customer (edit before sending)", reply["customer_reply"], height=170,
                          key=f"reply-{res['request_id']}")
         if status == "draft" and reply["steps"]:
-            st.markdown("**Steps, with the past ticket each one comes from:**")
-            for n, s in enumerate(reply["steps"], 1):
-                st.markdown(f"{n}. {s['text']}  `{', '.join(s['sources'])}`")
+            st.markdown(ui.label("Steps · each cites its past ticket"), unsafe_allow_html=True)
+            st.markdown(ui.steps_list(reply["steps"]), unsafe_allow_html=True)
         if reply.get("clarifying_questions"):
-            st.markdown("**Questions to ask the customer:**")
-            for q in reply["clarifying_questions"]:
-                st.write(f"- {q}")
+            st.markdown(ui.label("Questions to ask the customer"), unsafe_allow_html=True)
+            st.markdown(ui.questions_list(reply["clarifying_questions"]), unsafe_allow_html=True)
 
     with st.expander("Similar past tickets used as sources"):
-        for t in res["similar_tickets"]:
-            st.markdown(f"**{t['id']}** [{t['language']}] [{t['department']}] {t['subject']}")
-            st.caption(t["answer"])
+        st.markdown(ui.sources_html(res["similar_tickets"]), unsafe_allow_html=True)
 
-    st.write("Was this helpful?")
+    st.markdown(ui.label("Was this helpful?"), unsafe_allow_html=True)
     c1, c2, _ = st.columns([1, 1, 6])
-    for col, label, val in [(c1, "👍 Yes", True), (c2, "👎 No", False)]:
-        if col.button(label):
+    for col, lbl, val in [(c1, "👍 Yes", True), (c2, "👎 No", False)]:
+        if col.button(lbl):
             send_feedback(res["request_id"], val)
             st.success("Thanks for the feedback!")
-    d = res["diagnostics"]
-    st.caption(f"Request {res['request_id']} · {d['total_ms']} ms · {d['tokens_in']}/{d['tokens_out']} tokens")
+    st.markdown(ui.footer(res["request_id"], res["diagnostics"]), unsafe_allow_html=True)
