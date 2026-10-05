@@ -19,10 +19,10 @@ LOG_DIR = Path(os.getenv("LOG_DIR", "/tmp/ticket-assistant-logs"))
 LANES = {"auto": ("🟢 Auto-routed", "The 5 most similar past tickets strongly agree."),
          "suggest": ("🟡 Please confirm", "The similar tickets partly agree. Check the top 2."),
          "manual": ("🔴 Manual routing", "The similar tickets disagree. Please decide.")}
-EXAMPLES = ["", "My broadband drops every evening around 8, I work from home and this is costing me money.",
-            "I was charged twice for my monthly subscription. Please refund the extra charge.",
-            "Ich wurde zweimal für mein Abonnement belastet. Bitte erstatten Sie den Betrag.",
+EXAMPLES = ["", "I was charged twice for my monthly subscription. Please refund the extra charge.",
             "I want to return the headphones I bought last week, they stopped charging after two days.",
+            "Ich wurde zweimal für mein Abonnement belastet. Bitte erstatten Sie den Betrag.",
+            "My broadband drops every evening around 8, I work from home and this is costing me money.",
             "My smart fridge keeps ordering 40 litres of milk every night through the Alexa integration."]
 
 
@@ -54,7 +54,7 @@ def analyse(text):
     if u["day"] != date.today():
         u.update(day=date.today(), count=0)
     if u["count"] >= DAILY_LIMIT:
-        raise RuntimeError("Daily demo limit reached. Please try again tomorrow.")
+        raise RuntimeError("The demo has reached today's limit of AI drafts. Please try again tomorrow.")
     u["count"] += 1
     res = get_assistant().analyse(text)
     res["request_id"] = uuid.uuid4().hex[:12]
@@ -78,6 +78,8 @@ st.set_page_config(page_title="Support Ticket Assistant", page_icon="🎫", layo
 st.title("Support Ticket Assistant")
 st.caption("Finds similar past tickets, suggests routing, and drafts a reply grounded in past resolutions. "
            "A human agent reviews everything before it reaches the customer.")
+st.info("If the app was asleep, the first analysis takes about a minute while the models load. "
+        "After that, most tickets take a few seconds; when the free AI service is busy, a draft can take up to about 15 seconds.", icon="⏱️")
 
 example = st.selectbox("Try an example (optional)", EXAMPLES, format_func=lambda x: x[:90] or "Choose...")
 text = st.text_area("Customer ticket", value=example, height=140)
@@ -107,6 +109,9 @@ if res:
             st.warning("⚠️ Possible new issue: this ticket doesn't closely match any past ticket. "
                        "Routing is set to manual; please flag it for review.")
         title, why = LANES[rt["lane"]]
+        if nov.get("new_issue_suspected"):
+            why = ("Set to manual because the ticket looks unlike past tickets, so their vote may not apply. "
+                   "Use the suggestion below as a hint only.")
         st.markdown(f"**{title}** ({rt['agreement']} similar tickets agree)  \n{why}")
         for d in rt["departments"]:
             st.write(f"- {d['name']} ({d['votes']} of 5 votes)")
@@ -114,16 +119,26 @@ if res:
         st.write(f"**Type:** {rt['type']}   **Customer mood:** {res.get('sentiment') or 'unknown'}")
     with right:
         st.subheader("Suggested reply")
-        if reply["status"] == "draft":
-            st.write(reply["summary"])
+        status = reply["status"]
+        if status == "draft":
+            st.success("Past tickets contain a proven fix. Review the reply, then send.")
+        elif status == "escalate":
+            st.info("No proven fix in past tickets, so the reply asks for details and the ticket goes to a "
+                    "specialist. This is deliberate: the assistant doesn't guess.")
+        else:
+            st.warning("The AI draft is paused right now (busy or over the demo quota). "
+                       "Routing and similar tickets below still work.")
+        if reply.get("customer_reply"):
+            st.text_area("Reply to the customer (edit before sending)", reply["customer_reply"], height=180,
+                         key=f"reply-{res['request_id']}")
+        if status == "draft" and reply["steps"]:
+            st.markdown("**Steps, with the past ticket each one comes from:**")
             for n, s in enumerate(reply["steps"], 1):
                 st.markdown(f"{n}. {s['text']}  `{', '.join(s['sources'])}`")
-        elif reply["status"] == "escalate":
-            st.warning("No proven fix in past tickets. Escalate and ask the customer:")
-        else:
-            st.error("The AI draft is unavailable right now. Use the routing and similar tickets below.")
-        for q in reply.get("clarifying_questions") or []:
-            st.write(f"- {q}")
+        if reply.get("clarifying_questions"):
+            st.markdown("**Questions to ask the customer:**")
+            for q in reply["clarifying_questions"]:
+                st.write(f"- {q}")
 
     with st.expander("Similar past tickets used as sources"):
         for t in res["similar_tickets"]:
