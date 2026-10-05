@@ -16,7 +16,7 @@ An assistant for support agents: for each new ticket it **finds similar past tic
 
 | Familiar ticket (German): auto-routed, reply in German | Unfamiliar ticket: possible new issue |
 |---|---|
-| ![Familiar ticket](docs/images/familiar_ticket.png) | ![New issue](docs/images/new_issue.png) |
+| ![Familiar ticket](docs/images/familiar_ticket_v2.png) | ![New issue](docs/images/new_issue_v2.png) |
 
 **Cited draft (headphones return):** each step shows the past ticket it comes from.
 
