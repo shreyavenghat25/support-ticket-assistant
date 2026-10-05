@@ -210,3 +210,25 @@ Priority is auto-set only when all 5 agree; otherwise it is suggested for confir
 - Adding resolved examples reduced flags in every scenario, so the library adapts to new data.
 
 **Caveat:** holding out a department label is a pessimistic proxy for a new topic; genuinely new issues usually bring new vocabulary (product names, error codes), as billing does here.
+
+## D13. Demo hardening before submission
+
+**Decision:** Make the live prototype behave well for a first-time reviewer, without changing the evaluated routing or drafting rules.
+
+**Changes:**
+- Every result now includes a ready-to-send customer reply. For escalations (about three quarters of tickets, because most past answers contain no fix), the reply acknowledges the problem and asks the clarifying questions, so the agent always has something to send.
+- Live LLM calls use a 30-second timeout and retry once only after a quick network blip, never after a timeout or a rejected request. (Gemini rejects deadlines under 10 s, and on the free tier some replies took about 12 s, so 30 s leaves headroom.) Before, a provider outage could hold a request for about 45 seconds (retries waited 15 s, then 30 s); the evaluation scripts keep their patient retries.
+- Ticket text and past tickets are fenced off in tags and declared as data, not instructions (prompt-injection hygiene); a customer can't close the ticket block early.
+- Dataset placeholders (`<tel_num>`, `<name>`, `<acc_num>`, `<br>`) are stripped from drafts and source excerpts.
+- Adding a ticket builds the new index first and swaps it in under a lock, so a request never sees half an update; request metrics are kept in a bounded buffer; cited ticket ids are logged (not the text).
+- Five new tests run the full pipeline with a fake LLM (valid draft, escalation, LLM failure, injection fencing, placeholders): 16 tests in total.
+
+**Not changed:** the drafting status rules, the citation check, the confidence lanes and the novelty threshold, so the evaluated numbers above still describe the system. `scripts/day5_check_new_drafts.py` (hand check of the improved drafts) and `scripts/day5_dedupe_check.py` (near-duplicate neighbours) measure the two open questions from the review.
+
+## D14. Length-aware new-issue threshold
+
+**Problem found while testing the demo:** short one-line tickets (the kind people type into a demo) were flagged as possible new issues far more often than full tickets, even for familiar topics such as a double charge. The D12 threshold was calibrated on full tickets (median ~53 words); a short message naturally matches the library less closely, so its novelty score is higher.
+
+**Decision:** keep the full-ticket threshold, and calibrate a separate threshold for tickets of 30 words or fewer on 20-word versions of normal test tickets, with the same 5% false-alarm budget (`scripts/calibrate_novelty_short.py`, results in `reports/novelty_short.md`). When the flag does fire, the screen now explains that routing is manual because the ticket looks unfamiliar, rather than saying the similar tickets disagree.
+
+**Result:** on 1,500 normal test tickets shortened to 20 words, false new-issue alarms fell from 23.0% (full-ticket threshold) to 5.0% (short-ticket threshold 0.1155); full tickets are unchanged at 4.4% (threshold 0.0999).

@@ -6,7 +6,13 @@
 An assistant for support agents: for each new ticket it **finds similar past tickets**, **suggests routing with a confidence level**, and **drafts a reply grounded in past resolutions with citations**, escalating instead of guessing when no proven fix exists. A human agent reviews everything before it reaches the customer.
 
 **Live demo:** https://support-ticket-assistant-ddpuqm9pyfbqxuzrefbbxt.streamlit.app
-(Free hosting sleeps when unused; the first request after waking takes about a minute.)
+(Free hosting sleeps when unused; the first request after waking takes about a minute, then usually a few seconds per ticket, occasionally up to ~15 seconds when the free AI tier is busy.)
+
+**In 30 seconds**
+- An assistant that **knows when it doesn't know**: it auto-routes only when the 5 most similar past tickets agree, and that lane is **90% accurate when all 5 agree** (vs ~50% when they split).
+- A free **kNN vote beat the LLM at routing** (77.5% vs 63.5% top-2), so routing works even if the LLM is down; the LLM is used only to draft.
+- Every drafted step **cites a past ticket**; with no proven fix it writes a customer reply that asks for details instead of guessing.
+- I **checked the LLM judge by hand**: it said 100%, my blind check found 84%; one prompt fix brought the judge in line with me.
 
 | Familiar ticket (German): auto-routed, cited reply | Unfamiliar ticket: possible new issue |
 |---|---|
@@ -49,9 +55,9 @@ flowchart TD
 
 - **Retrieval:** multilingual `e5-small` embeddings (English + German in one index) fused with BM25 via reciprocal rank fusion. Knowledge base: 32,206 past tickets after removing exact copies.
 - **Routing:** majority vote of the 5 retrieved tickets; the agreement count sets the confidence lane. Priority is auto-set only when all 5 agree.
-- **Drafting:** Gemini (`gemini-3.5-flash-lite`, temperature 0, JSON output). Rules: use only the sources, cite them, don't recommend already-tried actions, escalate when no fix exists, reply in the customer's language.
+- **Drafting:** Gemini (`gemini-3.5-flash-lite`, temperature 0, JSON output). Rules: use only the sources, cite them, don't recommend already-tried actions, escalate when no fix exists, reply in the customer's language, and always write a ready-to-send customer reply (for escalations: acknowledge and ask for details).
 - **New issues:** tickets unlike anything in the library get a "possible new issue" warning and manual routing; resolved tickets can be added to the library through an admin-protected API endpoint (decision D12).
-- **Safety:** code-level citation validation, fallback to routing and similar tickets if the LLM fails, human review of every draft, daily request limit, ticket text not logged. Core safety rules are covered by 11 automated tests in CI.
+- **Safety:** code-level citation validation, ticket text fenced off from the instructions (prompt-injection hygiene), dataset placeholders stripped, a 30-second LLM timeout with a retry only for quick network blips, fallback to routing and similar tickets if the LLM fails, human review of every draft, daily request limit, ticket text not logged. Covered by 17 automated tests in CI, including the full pipeline with a fake LLM.
 
 ## Repository map
 
@@ -65,7 +71,7 @@ flowchart TD
 | `docs/decisions.md` | Design decisions D1-D12 with evidence |
 | `Dockerfile`, `start.sh` | Container running backend and frontend together |
 | `data/index/` | Prebuilt search index, so the app runs without rebuilding |
-| `tests/`, `.github/workflows/` | 11 safety tests, run automatically on every push |
+| `tests/`, `.github/workflows/` | 17 tests (safety rules and the full pipeline with a fake LLM), run on every push |
 | `docs/scaling.md`, `docs/prompts.txt` | Cost and scaling plan; AI collaboration log |
 
 ## Run it locally
@@ -92,7 +98,7 @@ To reproduce evaluations: `scripts/day2_eval_v2.py`, `scripts/day3_triage.py eva
 - **Synthetic, general-IT data**, not telecom-specific; about 30% of tickets carry telecom-relevant tags. No knowledge-base articles were added; retrieval uses past tickets only.
 - **Labels are imperfect**, so exact-match scores understate quality; hand checks are by one reviewer on small samples (30-39 items).
 - **High escalation (76%)** reflects the data: only about a third of historical answers actually help the customer.
-- **Remaining failure modes:** steps that mix a supported and an unsupported action; dataset placeholders (`<tel_num>`, `<link>`) copied into drafts; near-duplicate tickets occupying several retrieval slots.
+- **Remaining failure modes:** steps that mix a supported and an unsupported action; near-duplicate tickets occupying several retrieval slots (measured by `scripts/day5_dedupe_check.py`). Dataset placeholders (`<tel_num>`, `<name>`) are now stripped from drafts.
 - **Latency:** BM25 uses pure-Python `rank_bm25` (~200 ms per query); an optimised implementation would remove most of it.
 - **Small evaluation samples** for LLM steps (50-200 tickets) because of free-tier API limits.
 

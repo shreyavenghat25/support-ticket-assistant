@@ -44,7 +44,7 @@ def load_embedder():
 def embed(model, texts, kind):
     prefixed = [f"{kind}: {t}" for t in texts]
     return model.encode(prefixed, batch_size=64, normalize_embeddings=True,
-                        show_progress_bar=True, convert_to_numpy=True).astype(np.float32)
+                        show_progress_bar=len(texts) > 100, convert_to_numpy=True).astype(np.float32)
 
 
 def build():

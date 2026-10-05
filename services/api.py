@@ -2,8 +2,10 @@
 import json
 import os
 import statistics
+import threading
 import time
 import uuid
+from collections import deque
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -20,7 +22,8 @@ ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")  # required to add tickets; unset = endpo
 app = FastAPI(title="Support Ticket Resolution Assistant", version="1.0")
 _assistant = None
 _usage = {"day": date.today(), "count": 0}
-_recent = []
+_recent = deque(maxlen=10_000)  # bounded: metrics cover the most recent requests
+_usage_lock = threading.Lock()
 
 
 def assistant():
@@ -62,11 +65,12 @@ def health():
 
 @app.post("/analyse")
 def analyse(ticket: TicketIn):
-    if _usage["day"] != date.today():
-        _usage.update(day=date.today(), count=0)
-    if _usage["count"] >= DAILY_LIMIT:
-        raise HTTPException(429, "Daily demo limit reached. Please try again tomorrow.")
-    _usage["count"] += 1
+    with _usage_lock:
+        if _usage["day"] != date.today():
+            _usage.update(day=date.today(), count=0)
+        if _usage["count"] >= DAILY_LIMIT:
+            raise HTTPException(429, "The demo has reached today's limit of AI drafts. Please try again tomorrow.")
+        _usage["count"] += 1
 
     request_id = uuid.uuid4().hex[:12]
     start = time.perf_counter()
@@ -83,7 +87,7 @@ def analyse(ticket: TicketIn):
               "new_issue": result["novelty"]["new_issue_suspected"],
               "total_ms": round((time.perf_counter() - start) * 1000), "tokens_in": d["tokens_in"],
               "tokens_out": d["tokens_out"], "llm_ok": d["llm_ok"],
-              "invalid_citations_removed": d["invalid_citations_removed"]}
+              "invalid_citations_removed": d["invalid_citations_removed"], "cited_ids": d["cited_ids"]}
     log("requests.jsonl", record)
     _recent.append(record)
     return {"request_id": request_id, **result}

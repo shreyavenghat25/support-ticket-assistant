@@ -2,5 +2,8 @@
   "k": 5,
   "false_alarm_budget": 0.05,
   "threshold": 0.09987121820449829,
-  "note": "novelty = 1 - mean cosine similarity of the k closest library tickets"
+  "note": "novelty = 1 - mean cosine similarity of the k closest library tickets",
+  "threshold_short": 0.11552366614341736,
+  "short_max_words": 30,
+  "short_note": "used for tickets of 30 words or fewer; calibrated on 20-word versions of 1500 normal test tickets at a 5% false-alarm budget"
 }
