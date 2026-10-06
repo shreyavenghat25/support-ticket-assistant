@@ -130,4 +130,4 @@ An LLM-based answer labeller to rank sources by usefulness (D3), near-duplicate 
 
 ## Data and tools
 
-Dataset: Tobi-Bueck/customer-support-tickets (CC BY-NC 4.0), used for non-commercial evaluation. Built with the help of AI assistants, as permitted by the brief; all evaluation numbers come from the scripts and hand checks in this repository.
+**Dataset:** [Tobi-Bueck/customer-support-tickets](https://huggingface.co/datasets/Tobi-Bueck/customer-support-tickets) by Tobi Bueck, licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). The files in `data/index/` and the ticket excerpts in `reports/` are an adaptation: empty tickets and exact duplicates removed, split into library and test sets, and embedded with multilingual-e5-small. They are shared under the same licence, for non-commercial use only. Built with the help of AI assistants, as permitted by the brief; all evaluation numbers come from the scripts and hand checks in this repository.
