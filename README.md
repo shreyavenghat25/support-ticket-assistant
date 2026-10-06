@@ -11,8 +11,9 @@ An assistant for support agents: for each new ticket it **finds similar past tic
 
 https://github.com/user-attachments/assets/bbbcda24-6161-4ed7-85ff-2cfe64016e84
 
+**Jump to:** 0:00 Intro and tech stack · 2:10 Confident routing (English) · 3:05 German ticket · 3:30 Cited draft · 4:15 New-issue detection
 
-
+Also on [Loom](https://www.loom.com/share/64ef283374a04a0cad5666b3b66d91c6).
 
 
 
