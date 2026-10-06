@@ -5,9 +5,18 @@
 
 An assistant for support agents: for each new ticket it **finds similar past tickets**, **suggests routing with a confidence level**, and **drafts a reply grounded in past resolutions with citations**, escalating instead of guessing when no proven fix exists. A human agent reviews everything before it reaches the customer.
 
-### ▶ Watch the 3-minute demo
+### ▶ Watch the 5-minute demo
 
-[![Demo video: click to play](https://cdn.loom.com/sessions/thumbnails/64ef283374a04a0cad5666b3b66d91c6-with-play.gif)](https://www.loom.com/share/64ef283374a04a0cad5666b3b66d91c6)
+
+
+https://github.com/user-attachments/assets/bbbcda24-6161-4ed7-85ff-2cfe64016e84
+
+
+
+
+
+
+
 
 **Live demo:** https://support-ticket-assistant-ddpuqm9pyfbqxuzrefbbxt.streamlit.app
 (Free hosting sleeps when unused; the first request after waking takes about a minute, then usually a few seconds per ticket, occasionally up to ~15 seconds when the free AI tier is busy.)
