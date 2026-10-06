@@ -1,4 +1,6 @@
-# Support Ticket Resolution Assistant
+# Quorum: AI Ticket Triage
+
+*Routes, cites and drafts, and acts only when the evidence agrees.*
 
 ![tests](https://github.com/shreyavenghat25/support-ticket-assistant/actions/workflows/tests.yml/badge.svg)
 
