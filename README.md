@@ -57,21 +57,8 @@ Use Case 2 of the assignment. Every design decision, with evidence and alternati
 
 ## How it works
 
-```mermaid
-flowchart TD
-    A[New ticket] --> B[Hybrid search: BM25 + multilingual embeddings<br/>5 most similar past tickets]
-    B --> C[kNN vote: department, priority, type]
-    C --> D{How many of 5 agree?}
-    D -->|4-5| E[Auto-route]
-    D -->|3| F[Suggest top 2, agent confirms]
-    D -->|0-2| G[Manual routing]
-    B --> H[LLM drafts reply using only the 5 tickets<br/>every step cites a KB id]
-    H --> I[Code checks citations, removes unsupported steps]
-    I --> J{Real fix in sources?}
-    J -->|Yes| K[Draft with citations]
-    J -->|No| L[Escalate + clarifying questions]
-    E & F & G & K & L --> M[Agent reviews and sends]
-```
+![How it works](docs/images/how_it_works.png)
+
 
 - **Retrieval:** multilingual `e5-small` embeddings (English + German in one index) fused with BM25 via reciprocal rank fusion. Knowledge base: 32,206 past tickets after removing exact copies.
 - **Routing:** majority vote of the 5 retrieved tickets; the agreement count sets the confidence lane. Priority is auto-set only when all 5 agree.
