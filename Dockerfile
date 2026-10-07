@@ -14,7 +14,7 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 COPY scripts/ scripts/
 COPY services/ services/
 COPY app/ app/
-COPY data/index/kb.parquet data/index/kb_text_emb.npy data/index/
+COPY data/index/kb.parquet data/index/kb_text_emb.npy data/index/novelty.json data/index/
 COPY start.sh .
 RUN chmod +x start.sh
 
